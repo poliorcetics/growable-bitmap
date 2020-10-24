@@ -1,6 +1,26 @@
 //! A crate providing a growable compact boolean array.
 //!
 //! See the `GrowableBitMap` type for more information.
+//!
+//! # TODO:
+//!
+//! This crate is not feature-complete at all. Below are some features I want
+//! to add before marking it as `1.0`:
+//!
+//! - `BitOr` (with another `GrowableBitMap`).
+//! - `BitOrAssign` (with another `GrowableBitMap`).
+//! - `BitAnd` (with another `GrowableBitMap`).
+//! - `BitAndAssign` (with another `GrowableBitMap`).
+//! - `BitXor` (with another `GrowableBitMap`).
+//! - `BitXorAssign` (with another `GrowableBitMap`).
+//!
+//! - All fixed unsigned integers as storage (`u16`, `u32`, `u64` and `u128`
+//!   are missing).
+//! - When `const-generics` become available, possibly use them as storage ?
+//!
+//! - [Rust 1.48.0+ / Intra-doc links]: Use intra-doc links in documentation.
+//!   Right now there are no links because they're painful to write once you've
+//!   been introduced to the wonder intra-doc links are.
 use std::fmt;
 
 /// A growable compact boolean array.
@@ -103,9 +123,9 @@ impl GrowableBitMap {
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
-    /// assert!(GrowableBitMap::new().is_empty());
-    ///
     /// let mut b = GrowableBitMap::new();
+    /// assert!(b.is_empty());
+    ///
     /// b.set_bit(3);
     /// assert!(!b.is_empty());
     /// ```
@@ -113,7 +133,11 @@ impl GrowableBitMap {
         self.bits.is_empty() || self.bits.iter().all(|bits| *bits == 0)
     }
 
-    /// Gets the bit at the given index and returns `true` when it is set to 1.
+    /// Gets the bit at the given index and returns `true` when it is set to 1,
+    /// `false` when it is not.
+    /// 
+    /// This will **not** panic if the index is out of range of the backing
+    /// storage, only return `false`.
     ///
     /// # Examples
     ///
@@ -146,6 +170,13 @@ impl GrowableBitMap {
     /// Sets the bit at the given index and returns whether the bit was set
     /// to 1 by this call or not.
     ///
+    /// Note: This will grow the backing storage as needed to have enough
+    /// storage for the given index. If you set the bit 12800 with a storage of
+    /// `u8`s the backing storage will allocate 1600 `u8`s since
+    /// `sizeof::<u8>() == 1` byte.
+    ///
+    /// See also the `Caveats` section on `GrowableBitMap`.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -157,13 +188,6 @@ impl GrowableBitMap {
     ///
     /// assert!(b.set_bit(10)); // The bitmap will grow as needed to set the bit.
     /// ```
-    ///
-    /// Note: This will grow the backing storage as needed to have enough
-    /// storage for the given index. If you set the bit 12800 with a storage of
-    /// `u8`s the backing storage will allocate 1600 `u8`s since
-    /// `sizeof::<u8>() == 1` byte.
-    ///
-    /// See also the `Caveats` section on `GrowableBitMap`.
     pub fn set_bit(&mut self, index: usize) -> bool {
         let bits_index = index / Self::BITS_BY_STORAGE;
 
@@ -186,6 +210,10 @@ impl GrowableBitMap {
     /// Clears the bit at the given index and returns whether the bit was set
     /// to 0 by this call or not.
     ///
+    /// Note: this function will never allocate nor free memory, even when
+    /// the bit being cleared is the last 1 in the value at the end of the
+    /// backing storage.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -197,10 +225,6 @@ impl GrowableBitMap {
     /// b.set_bit(0);
     /// assert!(b.clear_bit(0));
     /// ```
-    ///
-    /// Note: this function will never allocate nor free memory, even when
-    /// the bit being cleared is the last 1 in the value at the end of the
-    /// backing storage.
     pub fn clear_bit(&mut self, index: usize) -> bool {
         let bits_index = index / Self::BITS_BY_STORAGE;
 
@@ -231,8 +255,8 @@ impl GrowableBitMap {
     ///
     /// let mut b = GrowableBitMap::new();
     /// b.set_bit(4);
-    ///
     /// assert!(!b.is_empty());
+    ///
     /// b.clear();
     /// assert!(b.is_empty());
     /// ```
@@ -271,8 +295,8 @@ impl GrowableBitMap {
     /// use growable_bitmap::GrowableBitMap;
     ///
     /// let mut b = GrowableBitMap::new();
-    ///
     /// assert_eq!(b.capacity(), 0);
+    ///
     /// b.set_bit(125);
     /// assert_eq!(b.capacity(), 128);
     /// ```
@@ -295,7 +319,7 @@ impl GrowableBitMap {
     ///
     /// b.set_bit(63);
     /// b.set_bit(127);
-    /// // assert_eq!(b.capacity(), 128);
+    /// assert_eq!(b.capacity(), 128);
     ///
     /// b.clear_bit(127);
     /// b.shrink_to_fit();
