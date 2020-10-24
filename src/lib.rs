@@ -38,6 +38,8 @@ impl GrowableBitMap {
     ///
     /// This does not allocate anything.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -58,6 +60,8 @@ impl GrowableBitMap {
     /// if the given `capacity` is not a multiple of the number of bits in one
     /// instance of the backing storage).
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -94,6 +98,8 @@ impl GrowableBitMap {
 
     /// `true` if the GrowableBitMap is empty.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -110,6 +116,8 @@ impl GrowableBitMap {
     /// Sets the bit at the given index and returns whether the bit was set
     /// to 1 by this call or not.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -148,6 +156,8 @@ impl GrowableBitMap {
     /// Clears the bit at the given index and returns whether the bit was set
     /// to 0 by this call or not.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -184,6 +194,8 @@ impl GrowableBitMap {
     ///
     /// This method has no effect on the allocated capacity of the bitmap.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -200,20 +212,21 @@ impl GrowableBitMap {
 
     /// Counts the number of bits that are set to 1 in the whole bitmap.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
     /// let mut b = GrowableBitMap::new();
-    /// assert_eq!(b.len(), 0);
+    /// assert_eq!(b.count_ones(), 0);
     ///
     /// b.set_bit(2);
-    /// assert_eq!(b.len(), 1);
+    /// assert_eq!(b.count_ones(), 1);
     ///
     /// b.set_bit(9);
-    /// assert_eq!(b.len(), 2);
+    /// assert_eq!(b.count_ones(), 2);
     /// ```
-    pub fn len(&self) -> usize {
-        // `count_ones` returns a `u32` but we want a `usize` for a length.
+    pub fn count_ones(&self) -> usize {
         self.bits
             .iter()
             .map(|&store| store.count_ones() as usize)
@@ -222,6 +235,8 @@ impl GrowableBitMap {
 
     /// Returns the number of bits the bitmap can hold without reallocating.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -241,6 +256,8 @@ impl GrowableBitMap {
     /// the last bit set to 1 and not more but the allocator may still inform
     /// the bitmap that there is space for a few more elements.
     ///
+    /// # Examples
+    ///  
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
