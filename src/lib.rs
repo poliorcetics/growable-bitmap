@@ -30,7 +30,7 @@ impl fmt::Debug for GrowableBitMap {
 
 impl GrowableBitMap {
     // Named constand to clarify bit shifts in `(set|clear)_bit`.
-    const BITS_IN_BYTE: usize = u8;
+    const BITS_IN_BYTE: usize = 8;
     // Number of bits that can be stored in one instance of the backend type.
     const BITS_BY_STORAGE: usize = 8;
 
@@ -39,7 +39,7 @@ impl GrowableBitMap {
     /// This does not allocate anything.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -61,7 +61,7 @@ impl GrowableBitMap {
     /// instance of the backing storage).
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -99,7 +99,7 @@ impl GrowableBitMap {
     /// `true` if the GrowableBitMap is empty.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -113,11 +113,41 @@ impl GrowableBitMap {
         self.bits.is_empty() || self.bits.iter().all(|bits| *bits == 0)
     }
 
+    /// Gets the bit at the given index and returns `true` when it is set to 1.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use growable_bitmap::GrowableBitMap;
+    ///
+    /// let mut b = GrowableBitMap::new();
+    /// assert!(!b.get_bit(0));
+    /// assert!(!b.get_bit(15));
+    ///
+    /// b.set_bit(15);
+    /// assert!(!b.get_bit(0));
+    /// assert!(b.get_bit(15));
+    /// ```
+    pub fn get_bit(&self, index: usize) -> bool {
+        let bits_index = index / Self::BITS_BY_STORAGE;
+
+        // Since the bits_index does not exist in the storage, the bit at
+        // `index` is logically 0.
+        if self.bits.len() <= bits_index {
+            return false;
+        }
+
+        let elem = self.bits[bits_index];
+        let mask = 1 << (index - bits_index * Self::BITS_IN_BYTE);
+
+        (elem & mask) != 0
+    }
+
     /// Sets the bit at the given index and returns whether the bit was set
     /// to 1 by this call or not.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -130,7 +160,7 @@ impl GrowableBitMap {
     ///
     /// Note: This will grow the backing storage as needed to have enough
     /// storage for the given index. If you set the bit 12800 with a storage of
-    /// `u8`s the backing storage will allocate 1600 `u8`s since 
+    /// `u8`s the backing storage will allocate 1600 `u8`s since
     /// `sizeof::<u8>() == 1` byte.
     ///
     /// See also the `Caveats` section on `GrowableBitMap`.
@@ -157,7 +187,7 @@ impl GrowableBitMap {
     /// to 0 by this call or not.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -182,7 +212,7 @@ impl GrowableBitMap {
 
         let elem = &mut self.bits[bits_index];
 
-        let mask = 1 << (index - bits_index * Self:BITS_IN_BYTE);
+        let mask = 1 << (index - bits_index * Self::BITS_IN_BYTE);
         let prev = *elem | !mask;
 
         *elem &= !mask;
@@ -195,7 +225,7 @@ impl GrowableBitMap {
     /// This method has no effect on the allocated capacity of the bitmap.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -213,7 +243,7 @@ impl GrowableBitMap {
     /// Counts the number of bits that are set to 1 in the whole bitmap.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -236,7 +266,7 @@ impl GrowableBitMap {
     /// Returns the number of bits the bitmap can hold without reallocating.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
@@ -257,7 +287,7 @@ impl GrowableBitMap {
     /// the bitmap that there is space for a few more elements.
     ///
     /// # Examples
-    ///  
+    ///
     /// ```rust
     /// use growable_bitmap::GrowableBitMap;
     ///
