@@ -135,7 +135,7 @@ impl GrowableBitMap {
 
     /// Gets the bit at the given index and returns `true` when it is set to 1,
     /// `false` when it is not.
-    /// 
+    ///
     /// This will **not** panic if the index is out of range of the backing
     /// storage, only return `false`.
     ///
