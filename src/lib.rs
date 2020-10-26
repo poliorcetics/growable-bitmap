@@ -23,6 +23,10 @@
 //!   been introduced to the wonder intra-doc links are.
 use std::fmt;
 
+mod storage;
+pub use storage::BitStorage;
+use storage::BITS_IN_BYTE;
+
 /// A growable compact boolean array.
 ///
 /// Bits are stored contiguously. The first value is packed into the least
@@ -49,8 +53,6 @@ impl fmt::Debug for GrowableBitMap {
 }
 
 impl GrowableBitMap {
-    // Named constand to clarify bit shifts in `(set|clear)_bit`.
-    const BITS_IN_BYTE: usize = 8;
     // Number of bits that can be stored in one instance of the backend type.
     const BITS_BY_STORAGE: usize = 8;
 
@@ -162,7 +164,7 @@ impl GrowableBitMap {
         }
 
         let elem = self.bits[bits_index];
-        let mask = 1 << (index - bits_index * Self::BITS_IN_BYTE);
+        let mask = 1 << (index - bits_index * BITS_IN_BYTE);
 
         (elem & mask) != 0
     }
@@ -198,7 +200,7 @@ impl GrowableBitMap {
 
         let elem = &mut self.bits[bits_index];
 
-        let mask = 1 << (index - bits_index * Self::BITS_IN_BYTE);
+        let mask = 1 << (index - bits_index * BITS_IN_BYTE);
         let prev = *elem & mask;
 
         *elem |= mask;
@@ -236,7 +238,7 @@ impl GrowableBitMap {
 
         let elem = &mut self.bits[bits_index];
 
-        let mask = 1 << (index - bits_index * Self::BITS_IN_BYTE);
+        let mask = 1 << (index - bits_index * BITS_IN_BYTE);
         let prev = *elem | !mask;
 
         *elem &= !mask;
