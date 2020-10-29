@@ -1,5 +1,3 @@
-// TODO: add examples to each method.
-
 /// Named to clarify bit/byte operations.
 pub const BITS_IN_BYTE: usize = 8;
 
