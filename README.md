@@ -21,8 +21,6 @@ boolean array that can be parameterized on its storage type.
  - `BitXor` (with another `GrowableBitMap`).
  - `BitXorAssign` (with another `GrowableBitMap`).
 
- - All fixed unsigned integers as storage (`u16`, `u32`, `u64` and `u128`
-   are missing).
  - When `const-generics` become available, possibly use them as storage ?
 
  - [Rust 1.48.0+ / Intra-doc links]: Use intra-doc links in documentation.
@@ -35,7 +33,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-growable-bitmap = "0.1"
+growable-bitmap = "0.2"
 ```
 
 and, if you're using Rust Edition 2015, this to your crate root:
